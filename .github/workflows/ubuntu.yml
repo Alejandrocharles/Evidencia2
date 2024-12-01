@@ -1,1 +1,60 @@
 
+name: Ubuntu CI Test
+
+on:
+  push:
+    branches: [ main, master, dev ]
+  pull_request:
+    branches: [ main, master, dev ]
+
+jobs:
+  build:
+    name: Ubuntu CI Build and Test
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+
+    - name: Install Dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential cmake gcov
+
+    - name: Install Python gcovr
+      run: |
+        pip install --user -U gcovr
+
+    - name: Prepare Build
+      run: |
+        make prepare
+
+    - name: Configure CMake
+      run: |
+        cmake -H. -Bbuild -DCMAKE_BUILD_TYPE=Debug -DENABLE_COVERAGE=On
+
+    - name: Build and Test
+      run: |
+        cmake --build build --config Debug --target coverage -j4
+        cd build
+        ctest --output-on-failure
+
+    - name: Generate Code Coverage Report
+      uses: irongut/CodeCoverageSummary@v1.3.0
+      with:
+        filename: build/coverage/coverage.cobertura.xml
+        badge: true
+        fail_below_min: true
+        format: markdown
+        hide_branch_rate: false
+        hide_complexity: true
+        indicators: true
+        output: both
+        thresholds: '60 80'
+
+    - name: Add Coverage Comment to PR
+      uses: marocchino/sticky-pull-request-comment@v2
+      if: github.event_name == 'pull_request'
+      with:
+        recreate: true
+        path: code-coverage-results.md
