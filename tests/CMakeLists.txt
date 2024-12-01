@@ -1,5 +1,7 @@
 include(Catch)
 include_directories(${CMAKE_SOURCE_DIR}/src)
+include_directories("${CMAKE_SOURCE_DIR}")
+
 
 # Crear el ejecutable para los tests
 add_executable("UnitTestFunctions" "test.cpp")
