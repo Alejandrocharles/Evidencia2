@@ -1,25 +1,32 @@
-
-
 include(Catch)
 
-add_executable("UnitTestFunciones" "test.cpp")
-target_link_libraries("UnitTestFunciones" PUBLIC "Libfunciones")
-target_link_libraries("UnitTestFunciones" PRIVATE Catch2::Catch2WithMain)
+# Crear el ejecutable para los tests
+add_executable("UnitTestFunctions" "test.cpp")
 
+# Vincular la biblioteca principal y Catch2
+target_link_libraries("UnitTestFunctions"
+    PUBLIC
+        functions # Cambiado a "functions" para coincidir con el nombre de la biblioteca
+    PRIVATE
+        Catch2::Catch2WithMain
+)
 
+# Configurar advertencias si están habilitadas
 if(${ENABLE_WARNINGS})
     target_set_warnings(
         TARGET
-        "UnitTestFunciones"
+        "UnitTestFunctions"
         ENABLE
         ${ENABLE_WARNINGS}
         AS_ERRORS
-        ${ENABLE_WARNINGS_AS_ERRORS})
+        ${ENABLE_WARNINGS_AS_ERRORS}
+    )
 endif()
 
-catch_discover_tests("UnitTestFunciones")
+# Descubrir y registrar tests con Catch2
+catch_discover_tests("UnitTestFunctions")
 
-
+# Configurar cobertura de código si está habilitada
 if(ENABLE_COVERAGE)
     set(COVERAGE_MAIN "coverage")
     set(COVERAGE_EXCLUDES
@@ -29,9 +36,10 @@ if(ENABLE_COVERAGE)
         "${PROJECT_SOURCE_DIR}/external/*"
         "${PROJECT_SOURCE_DIR}/tests/*"
         "${PROJECT_SOURCE_DIR}/build/*"
-        "/usr/include/*")
+        "/usr/include/*"
+    )
     set(COVERAGE_EXTRA_FLAGS)
-    set(COVERAGE_DEPENDENCIES "UnitTestFunciones")
+    set(COVERAGE_DEPENDENCIES "UnitTestFunctions")
 
     setup_target_for_coverage_gcovr_html(
         NAME
@@ -41,5 +49,6 @@ if(ENABLE_COVERAGE)
         DEPENDENCIES
         ${COVERAGE_DEPENDENCIES}
         BASE_DIRECTORY
-        ${CMAKE_SOURCE_DIR})
+        ${CMAKE_SOURCE_DIR}
+    )
 endif()
