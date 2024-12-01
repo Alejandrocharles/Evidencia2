@@ -1,82 +1,71 @@
 #include <iostream>
 #include <vector>
 #include <stdexcept>
-#include "funciones.h"
+#include "functions.h"
 
 int main() {
     try {
-        using namespace mynamespace;
+        using namespace network_utils;
 
-        // Leer el número de colonia
-        int n;
-        std::cin >> n;
-        if (n <= 0) {
-            throw std::invalid_argument("El número de colonias debe ser mayor a 0.");
+        int colonyCount;
+        std::cin >> colonyCount;
+        if (colonyCount <= 0) {
+            throw std::invalid_argument("La cantidad de colonias debe ser mayor que cero.");
         }
 
-        // Matriz de distancias (grafo para TSP y Kruskal)
-        std::vector<std::vector<int>> graph(n, std::vector<int>(n));
+        // Crear la matriz de distancias
+        std::vector<std::vector<int>> distanceMatrix(colonyCount, std::vector<int>(colonyCount));
 
-        // Leer la matriz de distancias
-        for (int i = 0; i < n; ++i) {
-            for (int j = 0; j < n; ++j) {
-                std::cin >> graph[i][j];
-                if (i == j && graph[i][j] != 0) {
-                    throw std::invalid_argument("Las distancias entre una ciudad y sí misma deben ser 0.");
+        for (int i = 0; i < colonyCount; ++i) {
+            for (int j = 0; j < colonyCount; ++j) {
+                std::cin >> distanceMatrix[i][j];
+                if (i == j && distanceMatrix[i][j] != 0) {
+                    throw std::invalid_argument("La distancia entre una colonia y sí misma debe ser 0.");
                 }
-                if (graph[i][j] < 0) {
-                    throw std::invalid_argument("Las distancias entre colonias no pueden ser negativas.");
+                if (distanceMatrix[i][j] < 0) {
+                    throw std::invalid_argument("Las distancias no pueden ser negativas.");
                 }
             }
         }
 
-        // Matriz de capacidades (grafo para Ford-Fulkerson)
-        std::vector<std::vector<int>> capacity(n, std::vector<int>(n));
+        // Crear la matriz de capacidades
+        std::vector<std::vector<int>> capacityMatrix(colonyCount, std::vector<int>(colonyCount));
 
-        // Leer la matriz de capacidades
-        for (int i = 0; i < n; ++i) {
-            for (int j = 0; j < n; ++j) {
-                std::cin >> capacity[i][j];
-                if (capacity[i][j] < 0) {
-                    throw std::invalid_argument("Las capacidades de flujo no pueden ser negativas.");
+        for (int i = 0; i < colonyCount; ++i) {
+            for (int j = 0; j < colonyCount; ++j) {
+                std::cin >> capacityMatrix[i][j];
+                if (capacityMatrix[i][j] < 0) {
+                    throw std::invalid_argument("Las capacidades deben ser no negativas.");
                 }
             }
         }
 
-        // Leer las coordenadas de las centrales
-        std::vector<std::pair<int, int>> centrals;
-        for (int i = 0; i < n; ++i) {
-            char openParen, comma, closeParen;
+        // Coordenadas de las centrales
+        std::vector<std::pair<int, int>> centralCoordinates;
+        for (int i = 0; i < colonyCount; ++i) {
+            char lParen, comma, rParen;
             int x, y;
-            std::cin >> openParen >> x >> comma >> y >> closeParen;
-            if (openParen != '(' || comma != ',' || closeParen != ')') {
-                throw std::invalid_argument("Formato inválido para las coordenadas de las centrales.");
+            std::cin >> lParen >> x >> comma >> y >> rParen;
+            if (lParen != '(' || comma != ',' || rParen != ')') {
+                throw std::invalid_argument("Formato incorrecto para coordenadas.");
             }
-            centrals.emplace_back(x, y);
+            centralCoordinates.emplace_back(x, y);
         }
 
-        // Leer las coordenadas de la nueva contratación
-        int newX, newY;
-        char openParen, comma, closeParen;
-        std::cin >> openParen >> newX >> comma >> newY >> closeParen;
-        if (openParen != '(' || comma != ',' || closeParen != ')') {
-            throw std::invalid_argument("Formato inválido para las coordenadas de la nueva contratación.");
+        // Leer coordenadas de un nuevo punto
+        int newPointX, newPointY;
+        char lParen, comma, rParen;
+        std::cin >> lParen >> newPointX >> comma >> newPointY >> rParen;
+        if (lParen != '(' || comma != ',' || rParen != ')') {
+            throw std::invalid_argument("Formato incorrecto para el nuevo punto.");
         }
 
-        // 1. Kruskal - Forma de cablear con fibra
+        // Kruskal
         try {
-            std::vector<std::tuple<int, int, int>> edges;
-            for (int i = 0; i < n; ++i) {
-                for (int j = i + 1; j < n; ++j) {
-                    if (graph[i][j] > 0) {
-                        edges.emplace_back(i, j, graph[i][j]);
-                    }
-                }
-            }
+            auto edges = buildEdges(distanceMatrix);
+            auto mst = findMinimalSpanningTree(edges, colonyCount);
 
-            auto mst = kruskal(edges, n);
-
-            std::cout << "1. Árbol de Expansión Mínima (Kruskal):\n";
+            std::cout << "1. Árbol de expansión mínima:\n";
             for (const auto& edge : mst) {
                 std::cout << "(" << char('A' + edge.first) << ", " << char('A' + edge.second) << ")\n";
             }
@@ -84,31 +73,29 @@ int main() {
             std::cerr << "Error en Kruskal: " << e.what() << "\n";
         }
 
-        // 2. Traveling Salesman - Ruta más corta
+        // TSP
         try {
-            auto [cost, path] = traveling_salesman(graph);
-            std::cout << "2. Ruta más corta (TSP):\n";
-            std::cout << "Costo mínimo: " << cost << "\n";
-            std::cout << "Ruta: " << path << "\n";
+            auto [minCost, route] = shortestRoute(distanceMatrix);
+            std::cout << "2. Ruta más eficiente (TSP):\n";
+            std::cout << "Costo: " << minCost << "\nRuta: " << route << "\n";
         } catch (const std::exception& e) {
             std::cerr << "Error en TSP: " << e.what() << "\n";
         }
 
-        // 3. Ford-Fulkerson - Máximo flujo
+        // Ford-Fulkerson
         try {
-            int maxFlow = ford_fulkerson(capacity, 0, n - 1);
-            std::cout << "3. Flujo máximo (Ford-Fulkerson): " << maxFlow << "\n";
+            int maxFlow = calculateMaxFlow(capacityMatrix, 0, colonyCount - 1);
+            std::cout << "3. Flujo máximo: " << maxFlow << "\n";
         } catch (const std::exception& e) {
-            std::cerr << "Error en Ford-Fulkerson: " << e.what() << "\n";
+            std::cerr << "Error en flujo máximo: " << e.what() << "\n";
         }
 
-        // 4. Búsqueda lineal - Central más cercana
+        // Central más cercana
         try {
-            auto nearest = nearest_central(newX, newY, centrals);
-            std::cout << "4. Central más cercana:\n";
-            std::cout << "(" << nearest.first << ", " << nearest.second << ")\n";
+            auto closestCentral = findNearestCentral(newPointX, newPointY, centralCoordinates);
+            std::cout << "4. Central más cercana: (" << closestCentral.first << ", " << closestCentral.second << ")\n";
         } catch (const std::exception& e) {
-            std::cerr << "Error en búsqueda lineal: " << e.what() << "\n";
+            std::cerr << "Error en la búsqueda: " << e.what() << "\n";
         }
 
     } catch (const std::exception& e) {
