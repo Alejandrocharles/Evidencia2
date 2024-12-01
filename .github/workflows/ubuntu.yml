@@ -9,37 +9,34 @@ on:
 
 jobs:
   build:
-    name: Ubuntu CI Build and Test
     runs-on: ubuntu-latest
-
     steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v2
+    - uses: actions/checkout@v2
 
-    - name: Install Dependencies
+    - name: Install GCC and tools
       run: |
         sudo apt-get update
-        sudo apt-get install -y build-essential cmake gcov
+        sudo apt-get install -y build-essential gcc g++ lcov
 
-    - name: Install Python gcovr
+    - name: Install gcovr
       run: |
         pip install --user -U gcovr
 
-    - name: Prepare Build
+    - name: Prepare
       run: |
         make prepare
 
-    - name: Configure CMake
+    - name: Configure
       run: |
         cmake -H. -Bbuild -DCMAKE_BUILD_TYPE=Debug -DENABLE_COVERAGE=On
 
-    - name: Build and Test
+    - name: Building and Testing
       run: |
         cmake --build build --config Debug --target coverage -j4
         cd build
-        ctest --output-on-failure
+        ctest .
 
-    - name: Generate Code Coverage Report
+    - name: Code Coverage Report
       uses: irongut/CodeCoverageSummary@v1.3.0
       with:
         filename: build/coverage/coverage.cobertura.xml
@@ -52,7 +49,7 @@ jobs:
         output: both
         thresholds: '60 80'
 
-    - name: Add Coverage Comment to PR
+    - name: Add Coverage PR Comment
       uses: marocchino/sticky-pull-request-comment@v2
       if: github.event_name == 'pull_request'
       with:
