@@ -7,7 +7,7 @@ add_executable(${EXECUTABLE_NAME} ${APP_SOURCES})
 # Vincula las librerías necesarias
 target_link_libraries(${EXECUTABLE_NAME}
     PRIVATE
-        funciones   # La librería creada en src
+        functions   # La librería creada en src
         nlohmann_json::nlohmann_json
         fmt::fmt
         spdlog::spdlog
