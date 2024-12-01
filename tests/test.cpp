@@ -1,6 +1,6 @@
 #define CATCH_CONFIG_MAIN
 #include <catch2/catch_test_macros.hpp>
-#include "funciones.h"
+#include "functions.h"
 #include <fstream>
 #include <cstdio> 
 
