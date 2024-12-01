@@ -27,5 +27,35 @@ if(${ENABLE_WARNINGS})
     )
 endif()
 
+
+
+# Configurar cobertura de código si está habilitada
+if(ENABLE_COVERAGE)
+    set(COVERAGE_MAIN "coverage")
+    set(COVERAGE_EXCLUDES
+        "${PROJECT_SOURCE_DIR}/app/*"
+        "${PROJECT_SOURCE_DIR}/cmake/*"
+        "${PROJECT_SOURCE_DIR}/docs/*"
+        "${PROJECT_SOURCE_DIR}/external/*"
+        "${PROJECT_SOURCE_DIR}/tests/*"
+        "${PROJECT_SOURCE_DIR}/build/*"
+        "/usr/include/*"
+    )
+    set(COVERAGE_EXTRA_FLAGS)
+    set(COVERAGE_DEPENDENCIES "UnitTestFunctions")
+
+    setup_target_for_coverage_gcovr_html(
+        NAME
+        ${COVERAGE_MAIN}
+        EXECUTABLE
+        ctest
+        DEPENDENCIES
+        ${COVERAGE_DEPENDENCIES}
+        BASE_DIRECTORY
+        ${CMAKE_SOURCE_DIR}
+    )
+endif()
+
+
 # Descubrir y registrar tests con Catch2
 catch_discover_tests("UnitTestFunctions")
