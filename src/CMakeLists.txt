@@ -4,7 +4,7 @@ set(LIBRARY_SOURCES
 )
 
 set(LIBRARY_HEADERS
-    "${CMAKE_CURRENT_SOURCE_DIR}/functionss.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/functions.h"
 )
 
 # Especifica los directorios de inclusión
