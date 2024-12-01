@@ -1,9 +1,5 @@
 cmake_minimum_required(VERSION 3.22)
 
-add_subdirectory(src)
-add_subdirectory(tests)
-
-
 project(
     "CppTemplate"
     VERSION 1.0.0
@@ -147,6 +143,8 @@ add_subdirectory(configured)
 add_subdirectory(external)
 add_subdirectory(src)
 add_subdirectory(app)
+add_subdirectory(tests)
+
 if(ENABLE_TESTING)
     include(CTest)
     enable_testing()
