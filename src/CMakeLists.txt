@@ -1,10 +1,10 @@
 # Especifica las fuentes y los encabezados de tu librería
 set(LIBRARY_SOURCES
-    "${CMAKE_CURRENT_SOURCE_DIR}/funciones.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/functions.cpp"
 )
 
 set(LIBRARY_HEADERS
-    "${CMAKE_CURRENT_SOURCE_DIR}/funciones.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/functionss.h"
 )
 
 # Especifica los directorios de inclusión
