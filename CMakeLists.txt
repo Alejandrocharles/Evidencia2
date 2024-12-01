@@ -158,6 +158,6 @@ install(
     RUNTIME DESTINATION bin)
 
 install(
-    TARGETS "Libfunciones" 
+    TARGETS "Libfunctions" 
     ARCHIVE DESTINATION lib
     LIBRARY DESTINATION lib)
