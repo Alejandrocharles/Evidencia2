@@ -2,6 +2,8 @@ include(Catch)
 
 # Crear el ejecutable para los tests
 add_executable("UnitTestFunctions" "test.cpp")
+include_directories(${CMAKE_SOURCE_DIR}/src)
+
 
 # Vincular la biblioteca principal y Catch2
 target_link_libraries("UnitTestFunctions"
