@@ -1,68 +1,31 @@
-name: C++ Ubuntu CI Pipeline
+name: C++ CI
 
-on:
-  push:
-    branches:
-      - main
-      - dev
-  pull_request:
-    branches:
-      - main
-      - dev
+on: [push, pull_request]
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-    # Paso 1: Checkout del código fuente
-    - name: Checkout Repository
-      uses: actions/checkout@v3
+    - name: Check out the repository
+      uses: actions/checkout@v2
 
-    # Paso 2: Instalación de dependencias necesarias para el proyecto
-    - name: Install Dependencies
-      run: |
-        sudo apt update
-        sudo apt install -y build-essential cmake g++ make
+    - name: Set up C++ environment
+      uses: actions/setup-cpp@v1
+      with:
+        compiler: 'g++-10'
 
-    # Paso 3: Configuración del proyecto CMake
-    - name: Configure CMake Project
-      run: |
-        cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
-        echo "Project configured successfully!"
+    - name: Install dependencies
+      run: sudo apt-get install -y libstdc++-10-dev
 
-    # Paso 4: Compilación y ejecución de pruebas unitarias (Si estás utilizando un framework de pruebas como Google Test)
-    - name: Build and Test
+    - name: Run CMake
       run: |
-        cmake --build build --parallel 4
+        mkdir build
+        cd build
+        cmake ..
+        cmake --build .
+
+    - name: Run tests
+      run: |
         cd build
         ctest --output-on-failure
-
-    # Paso 5: Análisis estático de código (opcional, usando cppcheck o clang-tidy)
-    - name: Run Static Code Analysis
-      run: |
-        sudo apt install -y cppcheck
-        cppcheck --enable=all --inconclusive --xml --xml-version=2 . 2> cppcheck_report.xml
-        echo "Static analysis completed!"
-
-    # Paso 6: Generación de reporte de cobertura de código (usando gcovr)
-    - name: Generate Code Coverage Report
-      run: |
-        gcovr -r . --branches --json > coverage.json
-        echo "Coverage report generated."
-
-    # Paso 7: Subir informe de cobertura de código como comentario en Pull Request
-    - name: Add Coverage Report as PR Comment
-      uses: marocchino/sticky-pull-request-comment@v2
-      if: github.event_name == 'pull_request'
-      with:
-        recreate: true
-        path: coverage_report.md
-
-    # Paso 8: Subir reporte de cobertura (opcional, para visualización externa como Codecov o Coveralls)
-    - name: Upload Code Coverage to Codecov
-      uses: codecov/codecov-action@v3
-      with:
-        file: coverage.json
-        token: ${{ secrets.CODECOV_TOKEN }}
-
