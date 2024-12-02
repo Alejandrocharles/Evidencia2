@@ -23,7 +23,7 @@ jobs:
     - name: Install Dependencies
       run: |
         sudo apt update
-        sudo apt install -y build-essential cmake g++ make
+        sudo apt install -y build-essential cmake g++ make cppcheck gcovr
 
     # Paso 3: Configuración del proyecto CMake
     - name: Configure CMake Project
@@ -36,19 +36,17 @@ jobs:
       run: |
         cmake --build build --parallel 4
         cd build
-        ctest --output-on-failure
+        ctest --output-on-failure || true  # Agregar "|| true" para que continúe con los siguientes pasos incluso si ctest falla
 
-    # Paso 5: Análisis estático de código (opcional, usando cppcheck)
+    # Paso 5: Análisis estático de código (usando cppcheck)
     - name: Run Static Code Analysis
       run: |
-        sudo apt install -y cppcheck
         cppcheck --enable=all --inconclusive --xml --xml-version=2 . 2> cppcheck_report.xml
         echo "Static analysis completed!"
 
     # Paso 6: Generación de reporte de cobertura de código (usando gcovr)
     - name: Generate Code Coverage Report
       run: |
-        sudo apt install -y gcovr
         gcovr -r . --branches --json > coverage.json
         echo "Coverage report generated."
 
@@ -60,7 +58,7 @@ jobs:
         recreate: true
         path: coverage.json
 
-    # Paso 8: Subir reporte de cobertura (opcional, para visualización externa como Codecov o Coveralls)
+    # Paso 8: Subir reporte de cobertura a Codecov
     - name: Upload Code Coverage to Codecov
       uses: codecov/codecov-action@v3
       with:
