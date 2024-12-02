@@ -10,7 +10,7 @@ add_executable("UnitTestFunctions" "test.cpp")
 # Vincular la biblioteca principal y Catch2
 target_link_libraries("UnitTestFunctions"
     PUBLIC
-        functions # Cambiado a "functions" para coincidir con el nombre de la biblioteca
+        Libfunctions 
     PRIVATE
         Catch2::Catch2WithMain
 )
