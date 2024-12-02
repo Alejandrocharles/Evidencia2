@@ -1,11 +1,11 @@
 # Incluir Catch2 correctamente
 find_package(Catch2 REQUIRED)
 
-# Incluir el directorio fuente de tu proyecto
-include_directories(${CMAKE_SOURCE_DIR}/src)
-
 # Crear el ejecutable para los tests
 add_executable("UnitTestFunctions" "test.cpp")
+
+# Incluir el directorio fuente de tu proyecto (si es necesario)
+# include_directories(${CMAKE_SOURCE_DIR}/src)  # Esto puede no ser necesario si las bibliotecas están bien vinculadas
 
 # Vincular Catch2 y otras bibliotecas necesarias
 target_link_libraries("UnitTestFunctions"
