@@ -1,3 +1,4 @@
+
 name: Ubuntu CI Test
 
 on:
@@ -9,28 +10,27 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v2
 
-    - name: Install dependencies
+    - name: Install GCC and tools
       run: |
         sudo apt-get update
-        sudo apt-get install -y g++ gcovr wget
-        # Instalar CMake 3.22+
-        wget https://github.com/Kitware/CMake/releases/download/v3.22.1/cmake-3.22.1-linux-x86_64.sh
-        sudo bash cmake-3.22.1-linux-x86_64.sh --prefix=/usr/local --skip-license
-        cmake --version  # Verificar la versión de CMake
+        sudo apt-get install -y build-essential gcc g++ lcov
 
-    - name: Prepare environment
+    - name: Install gcovr
+      run: |
+        pip install --user -U gcovr
+
+    - name: Prepare
       run: |
         make prepare
 
-    - name: Configure project
+    - name: Configure
       run: |
-        cmake -H. -Bbuild -DCMAKE_BUILD_TYPE=Debug -DENABLE_COVERAGE=ON
+        cmake -H. -Bbuild -DCMAKE_BUILD_TYPE=Debug -DENABLE_COVERAGE=On
 
-    - name: Build and Test
+    - name: Building and Testing
       run: |
         cmake --build build --config Debug --target coverage -j4
         cd build
