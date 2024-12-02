@@ -128,7 +128,7 @@ else()
         GIT_SHALLOW TRUE)
     FetchContent_MakeAvailable(cxxopts)
 
-        if(ENABLE_TESTING)
+    if(ENABLE_TESTING)
         FetchContent_Declare(
             Catch2
             GIT_REPOSITORY https://github.com/catchorg/Catch2
