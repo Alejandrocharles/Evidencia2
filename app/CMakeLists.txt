@@ -1,13 +1,15 @@
-# Especifica las fuentes del ejecutable
 set(APP_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/main.cpp")
 
-# Crea el ejecutable a partir de los archivos fuente especificados
+# Especificar los directorios de inclusión
+include_directories(${CMAKE_SOURCE_DIR}/src)
+
+# Crear el ejecutable a partir de los archivos fuente especificados
 add_executable(${EXECUTABLE_NAME} ${APP_SOURCES})
 
 # Vincula las librerías necesarias
 target_link_libraries(${EXECUTABLE_NAME}
     PRIVATE
-        functions   # La librería creada en src
+        Libfunctions   # La librería creada en src
         nlohmann_json::nlohmann_json
         fmt::fmt
         spdlog::spdlog
