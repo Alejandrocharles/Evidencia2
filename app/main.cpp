@@ -54,8 +54,9 @@ int main() {
 
         // Leer coordenadas de un nuevo punto
         int newPointX, newPointY;
-        std::cin >> lParen >> newPointX >> comma >> newPointY >> rParen;
-        if (lParen != '(' || comma != ',' || rParen != ')') {
+        char lParen2, comma2, rParen2; // Declara las variables aquí
+        std::cin >> lParen2 >> newPointX >> comma2 >> newPointY >> rParen2;
+        if (lParen2 != '(' || comma2 != ',' || rParen2 != ')') {
             throw std::invalid_argument("Formato incorrecto para el nuevo punto.");
         }
 
