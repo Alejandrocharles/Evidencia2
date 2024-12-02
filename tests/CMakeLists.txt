@@ -2,15 +2,13 @@ include(Catch)
 include_directories(${CMAKE_SOURCE_DIR}/src)
 include_directories("${CMAKE_SOURCE_DIR}")
 
-
 # Crear el ejecutable para los tests
-add_executable("UnitTestFunctions" "test.cpp")
-
+add_executable(UnitTestFunctions test.cpp)
 
 # Vincular la biblioteca principal y Catch2
-target_link_libraries("UnitTestFunctions"
+target_link_libraries(UnitTestFunctions
     PUBLIC
-        Libfunctions 
+        Libfunctions
     PRIVATE
         Catch2::Catch2WithMain
 )
@@ -19,16 +17,13 @@ target_link_libraries("UnitTestFunctions"
 if(${ENABLE_WARNINGS})
     target_set_warnings(
         TARGET
-        "UnitTestFunctions"
+        UnitTestFunctions
         ENABLE
         ${ENABLE_WARNINGS}
         AS_ERRORS
         ${ENABLE_WARNINGS_AS_ERRORS}
     )
 endif()
-
-# Descubrir y registrar tests con Catch2
-catch_discover_tests("UnitTestFunctions")
 
 # Configurar cobertura de código si está habilitada
 if(ENABLE_COVERAGE)
@@ -43,7 +38,7 @@ if(ENABLE_COVERAGE)
         "/usr/include/*"
     )
     set(COVERAGE_EXTRA_FLAGS)
-    set(COVERAGE_DEPENDENCIES "UnitTestFunctions")
+    set(COVERAGE_DEPENDENCIES UnitTestFunctions)
 
     setup_target_for_coverage_gcovr_html(
         NAME
@@ -56,3 +51,6 @@ if(ENABLE_COVERAGE)
         ${CMAKE_SOURCE_DIR}
     )
 endif()
+
+# Descubrir y registrar tests con Catch2
+catch_discover_tests(UnitTestFunctions)
