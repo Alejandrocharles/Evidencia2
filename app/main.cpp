@@ -1,107 +1,37 @@
-#include <iostream>
-#include <vector>
-#include <stdexcept>
-#include "functions.h"
+# Especifica las fuentes del ejecutable
+set(APP_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/main.cpp")
 
-int main() {
-    try {
-        using namespace network_utils;
+# Crea el ejecutable a partir de los archivos fuente especificados
+add_executable(${EXECUTABLE_NAME} ${APP_SOURCES})
 
-        int colonyCount;
-        std::cin >> colonyCount;
-        if (colonyCount <= 0) {
-            throw std::invalid_argument("La cantidad de colonias debe ser mayor que cero.");
-        }
+# Vincula las librerías necesarias
+target_link_libraries(${EXECUTABLE_NAME}
+    PRIVATE
+        Libfunctions   # La librería creada en src
+        nlohmann_json::nlohmann_json
+        fmt::fmt
+        spdlog::spdlog
+        cxxopts::cxxopts
+)
 
-        // Crear la matriz de distancias
-        std::vector<std::vector<int>> distanceMatrix(colonyCount, std::vector<int>(colonyCount));
+# Si las advertencias están habilitadas, agregar advertencias al ejecutable
+if(${ENABLE_WARNINGS})
+    target_set_warnings(
+        TARGET ${EXECUTABLE_NAME}
+        ENABLE ${ENABLE_WARNINGS}
+        AS_ERRORS ${ENABLE_WARNINGS_AS_ERRORS}
+    )
+endif()
 
-        for (int i = 0; i < colonyCount; ++i) {
-            for (int j = 0; j < colonyCount; ++j) {
-                std::cin >> distanceMatrix[i][j];
-                if (i == j && distanceMatrix[i][j] != 0) {
-                    throw std::invalid_argument("La distancia entre una colonia y sí misma debe ser 0.");
-                }
-                if (distanceMatrix[i][j] < 0) {
-                    throw std::invalid_argument("Las distancias no pueden ser negativas.");
-                }
-            }
-        }
+# Habilitar Link Time Optimization (LTO) si está habilitado
+if(${ENABLE_LTO})
+    target_enable_lto(
+        TARGET ${EXECUTABLE_NAME}
+        ENABLE ON
+    )
+endif()
 
-        // Crear la matriz de capacidades
-        std::vector<std::vector<int>> capacityMatrix(colonyCount, std::vector<int>(colonyCount));
-
-        for (int i = 0; i < colonyCount; ++i) {
-            for (int j = 0; j < colonyCount; ++j) {
-                std::cin >> capacityMatrix[i][j];
-                if (capacityMatrix[i][j] < 0) {
-                    throw std::invalid_argument("Las capacidades deben ser no negativas.");
-                }
-            }
-        }
-
-        // Coordenadas de las centrales
-        std::vector<std::pair<int, int>> centralCoordinates;
-        for (int i = 0; i < colonyCount; ++i) {
-            char lParen, comma, rParen;
-            int x, y;
-            std::cin >> lParen >> x >> comma >> y >> rParen;
-            if (lParen != '(' || comma != ',' || rParen != ')') {
-                throw std::invalid_argument("Formato incorrecto para coordenadas.");
-            }
-            centralCoordinates.emplace_back(x, y);
-        }
-
-        // Leer coordenadas de un nuevo punto
-        int newPointX, newPointY;
-        char lParen, comma, rParen;
-        std::cin >> lParen >> newPointX >> comma >> newPointY >> rParen;
-        if (lParen != '(' || comma != ',' || rParen != ')') {
-            throw std::invalid_argument("Formato incorrecto para el nuevo punto.");
-        }
-
-        // Kruskal
-        try {
-            auto edges = buildEdges(distanceMatrix);
-            auto mst = findMinimalSpanningTree(edges, colonyCount);
-
-            std::cout << "1. Árbol de expansión mínima:\n";
-            for (const auto& edge : mst) {
-                std::cout << "(" << char('A' + edge.first) << ", " << char('A' + edge.second) << ")\n";
-            }
-        } catch (const std::exception& e) {
-            std::cerr << "Error en Kruskal: " << e.what() << "\n";
-        }
-
-        // TSP
-        try {
-            auto [minCost, route] = shortestRoute(distanceMatrix);
-            std::cout << "2. Ruta más eficiente (TSP):\n";
-            std::cout << "Costo: " << minCost << "\nRuta: " << route << "\n";
-        } catch (const std::exception& e) {
-            std::cerr << "Error en TSP: " << e.what() << "\n";
-        }
-
-        // Ford-Fulkerson
-        try {
-            int maxFlow = calculateMaxFlow(capacityMatrix, 0, colonyCount - 1);
-            std::cout << "3. Flujo máximo: " << maxFlow << "\n";
-        } catch (const std::exception& e) {
-            std::cerr << "Error en flujo máximo: " << e.what() << "\n";
-        }
-
-        // Central más cercana
-        try {
-            auto closestCentral = findNearestCentral(newPointX, newPointY, centralCoordinates);
-            std::cout << "4. Central más cercana: (" << closestCentral.first << ", " << closestCentral.second << ")\n";
-        } catch (const std::exception& e) {
-            std::cerr << "Error en la búsqueda: " << e.what() << "\n";
-        }
-
-    } catch (const std::exception& e) {
-        std::cerr << "Error general: " << e.what() << "\n";
-        return 1;
-    }
-
-    return 0;
-}
+# Agregar soporte de Clang Tidy si está habilitado
+if(${ENABLE_CLANG_TIDY})
+    add_clang_tidy_to_target(${EXECUTABLE_NAME})
+endif()
