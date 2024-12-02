@@ -1,18 +1,13 @@
-include(Catch)
-include_directories(${CMAKE_SOURCE_DIR}/src)
-include_directories("${CMAKE_SOURCE_DIR}")
+# Incluir Catch2 correctamente
+find_package(Catch2 REQUIRED)
 
+# Incluir el directorio fuente de tu proyecto
+include_directories(${CMAKE_SOURCE_DIR}/src)
 
 # Crear el ejecutable para los tests
 add_executable("UnitTestFunctions" "test.cpp")
 
-
-# En el CMakeLists.txt
-
-# Asegúrate de que Catch2 esté bien incluido
-include_directories(${CMAKE_SOURCE_DIR}/path_to_catch2)
-
-# Asegúrate de que la biblioteca Catch2 esté vinculada correctamente
+# Vincular Catch2 y otras bibliotecas necesarias
 target_link_libraries("UnitTestFunctions"
     PUBLIC
         Libfunctions
@@ -21,44 +16,39 @@ target_link_libraries("UnitTestFunctions"
 )
 
 # Configurar advertencias si están habilitadas
-if(${ENABLE_WARNINGS})
-    target_set_warnings(
-        TARGET
-        "UnitTestFunctions"
-        ENABLE
-        ${ENABLE_WARNINGS}
-        AS_ERRORS
-        ${ENABLE_WARNINGS_AS_ERRORS}
+if(ENABLE_WARNINGS)
+    target_compile_options("UnitTestFunctions"
+        PRIVATE
+            -Wall
+            -Wextra
+            -Wpedantic
     )
 endif()
 
+if(ENABLE_WARNINGS_AS_ERRORS)
+    target_compile_options("UnitTestFunctions" PRIVATE -Werror)
+endif()
 
- if(ENABLE_COVERAGE)
-     set(COVERAGE_MAIN "coverage")
-     set(COVERAGE_EXCLUDES
-         "${PROJECT_SOURCE_DIR}/app/*"
-         "${PROJECT_SOURCE_DIR}/cmake/*"
-         "${PROJECT_SOURCE_DIR}/docs/*"
-         "${PROJECT_SOURCE_DIR}/external/*"
-         "${PROJECT_SOURCE_DIR}/tests/*"
-         "${PROJECT_SOURCE_DIR}/build/*"
-         "/usr/include/*"
-     )
-     set(COVERAGE_EXTRA_FLAGS)
-     set(COVERAGE_DEPENDENCIES "UnitTestFunctions")
+# Configurar cobertura si está habilitada
+if(ENABLE_COVERAGE)
+    set(COVERAGE_EXCLUDES
+        "${PROJECT_SOURCE_DIR}/app/*"
+        "${PROJECT_SOURCE_DIR}/cmake/*"
+        "${PROJECT_SOURCE_DIR}/docs/*"
+        "${PROJECT_SOURCE_DIR}/external/*"
+        "${PROJECT_SOURCE_DIR}/tests/*"
+        "${PROJECT_SOURCE_DIR}/build/*"
+    )
 
-     setup_target_for_coverage_gcovr_html(
-         NAME
-         ${COVERAGE_MAIN}
-         EXECUTABLE
-         ctest
-         DEPENDENCIES
-         ${COVERAGE_DEPENDENCIES}
-         BASE_DIRECTORY
-         ${CMAKE_SOURCE_DIR}
-     )
-# endif()
+    set(COVERAGE_DEPENDENCIES "UnitTestFunctions")
 
+    setup_target_for_coverage_gcovr_html(
+        NAME ${COVERAGE_MAIN}
+        EXECUTABLE ctest
+        DEPENDENCIES ${COVERAGE_DEPENDENCIES}
+        BASE_DIRECTORY ${CMAKE_SOURCE_DIR}
+    )
+endif()
 
-# Descubrir y registrar tests con Catch2
+# Descubrir y registrar pruebas con Catch2
 catch_discover_tests("UnitTestFunctions")
