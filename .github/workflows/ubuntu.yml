@@ -9,37 +9,28 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v2
-
-    - name: Install GCC and tools
+    
+    - name: Install dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y build-essential gcc g++ lcov catch2
-
-    - name: Install gcovr
-      run: |
-        pip install --user -U gcovr
-
-    - name: Clean Build Directory
-      run: |
-        rm -rf build/*  # Limpia el directorio de compilación para evitar errores
-
-    - name: Prepare
+        sudo apt-get install -y cmake g++ gcovr
+    
+    - name: Prepare environment
       run: |
         make prepare
-
-    - name: Configure
+    
+    - name: Configure project
       run: |
-        cmake -H. -Bbuild -DCMAKE_BUILD_TYPE=Debug -DENABLE_COVERAGE=On -DCMAKE_VERBOSE_MAKEFILE=ON
-
-    - name: Building and Testing
+        cmake -H. -Bbuild -DCMAKE_BUILD_TYPE=Debug -DENABLE_COVERAGE=ON
+    
+    - name: Build and Test
       run: |
         cmake --build build --config Debug --target coverage -j4
         cd build
         ctest .
-
+    
     - name: Code Coverage Report
       uses: irongut/CodeCoverageSummary@v1.3.0
       with:
@@ -52,7 +43,7 @@ jobs:
         indicators: true
         output: both
         thresholds: '60 80'
-
+    
     - name: Add Coverage PR Comment
       uses: marocchino/sticky-pull-request-comment@v2
       if: github.event_name == 'pull_request'
