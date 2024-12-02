@@ -7,10 +7,15 @@ include_directories("${CMAKE_SOURCE_DIR}")
 add_executable("UnitTestFunctions" "test.cpp")
 
 
-# Vincular la biblioteca principal y Catch2
+# En el CMakeLists.txt
+
+# Asegúrate de que Catch2 esté bien incluido
+include_directories(${CMAKE_SOURCE_DIR}/path_to_catch2)
+
+# Asegúrate de que la biblioteca Catch2 esté vinculada correctamente
 target_link_libraries("UnitTestFunctions"
     PUBLIC
-        Libfunctions # Cambiado a "functions" para coincidir con el nombre de la biblioteca
+        Libfunctions
     PRIVATE
         Catch2::Catch2WithMain
 )
