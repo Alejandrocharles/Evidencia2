@@ -13,13 +13,13 @@ set(LIBRARY_INCLUDES
 )
 
 # Crear la librería estática
-add_library("Libfunctions" STATIC ${LIBRARY_SOURCES} ${LIBRARY_HEADERS})
+add_library(Libfunctions STATIC ${LIBRARY_SOURCES} ${LIBRARY_HEADERS})
 
 # Especificar los directorios de inclusión
-target_include_directories("Libfunctions" PUBLIC ${LIBRARY_INCLUDES})
+target_include_directories(Libfunctions PUBLIC ${LIBRARY_INCLUDES})
 
 # Vincular dependencias (como nlohmann_json, fmt, spdlog, cxxopts, etc.)
-target_link_libraries("Libfunctions"
+target_link_libraries(Libfunctions
     PRIVATE
         nlohmann_json::nlohmann_json
         fmt::fmt
@@ -30,7 +30,7 @@ target_link_libraries("Libfunctions"
 # Agregar advertencias si está habilitado
 if(${ENABLE_WARNINGS})
     target_set_warnings(
-        TARGET "Libfunctions"
+        TARGET Libfunctions
         ENABLE ${ENABLE_WARNINGS}
         AS_ERRORS ${ENABLE_WARNINGS_AS_ERRORS}
     )
@@ -39,12 +39,12 @@ endif()
 # Habilitar Link Time Optimization (LTO) si está habilitado
 if(${ENABLE_LTO})
     target_enable_lto(
-        TARGET "Libfunctions"
+        TARGET Libfunctions
         ENABLE ON
     )
 endif()
 
 # Agregar soporte de Clang Tidy si está habilitado
 if(${ENABLE_CLANG_TIDY})
-    add_clang_tidy_to_target(functions)
+    add_clang_tidy_to_target(Libfunctions)
 endif()
