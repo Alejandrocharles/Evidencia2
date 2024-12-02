@@ -104,7 +104,7 @@ int calculateMaxFlow(const std::vector<std::vector<int>>& capacity, int source, 
                 if (parent[v] == -1 && residualCapacity[u][v] > 0) {
                     parent[v] = u;
                     int newFlow = std::min(flow, residualCapacity[u][v]);
-                    if (static_cast<size_t>(v) == static_cast<size_t>(sink)) {
+                    if (static_cast<size_t>(v) == sink) {
                         return newFlow;
                     }
                     q.push({v, newFlow});
