@@ -33,30 +33,30 @@ if(${ENABLE_WARNINGS})
 endif()
 
 
-# if(ENABLE_COVERAGE)
-#     set(COVERAGE_MAIN "coverage")
-#     set(COVERAGE_EXCLUDES
-#         "${PROJECT_SOURCE_DIR}/app/*"
-#         "${PROJECT_SOURCE_DIR}/cmake/*"
-#         "${PROJECT_SOURCE_DIR}/docs/*"
-#         "${PROJECT_SOURCE_DIR}/external/*"
-#         "${PROJECT_SOURCE_DIR}/tests/*"
-#         "${PROJECT_SOURCE_DIR}/build/*"
-#         "/usr/include/*"
-#     )
-#     set(COVERAGE_EXTRA_FLAGS)
-#     set(COVERAGE_DEPENDENCIES "UnitTestFunctions")
+ if(ENABLE_COVERAGE)
+     set(COVERAGE_MAIN "coverage")
+     set(COVERAGE_EXCLUDES
+         "${PROJECT_SOURCE_DIR}/app/*"
+         "${PROJECT_SOURCE_DIR}/cmake/*"
+         "${PROJECT_SOURCE_DIR}/docs/*"
+         "${PROJECT_SOURCE_DIR}/external/*"
+         "${PROJECT_SOURCE_DIR}/tests/*"
+         "${PROJECT_SOURCE_DIR}/build/*"
+         "/usr/include/*"
+     )
+     set(COVERAGE_EXTRA_FLAGS)
+     set(COVERAGE_DEPENDENCIES "UnitTestFunctions")
 
-#     setup_target_for_coverage_gcovr_html(
-#         NAME
-#         ${COVERAGE_MAIN}
-#         EXECUTABLE
-#         ctest
-#         DEPENDENCIES
-#         ${COVERAGE_DEPENDENCIES}
-#         BASE_DIRECTORY
-#         ${CMAKE_SOURCE_DIR}
-#     )
+     setup_target_for_coverage_gcovr_html(
+         NAME
+         ${COVERAGE_MAIN}
+         EXECUTABLE
+         ctest
+         DEPENDENCIES
+         ${COVERAGE_DEPENDENCIES}
+         BASE_DIRECTORY
+         ${CMAKE_SOURCE_DIR}
+     )
 # endif()
 
 
