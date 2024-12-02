@@ -9,28 +9,34 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
     - uses: actions/checkout@v2
-    
+
     - name: Install dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y cmake g++ gcovr
-    
+        sudo apt-get install -y g++ gcovr wget
+
+    - name: Install CMake 3.22+
+      run: |
+        wget https://github.com/Kitware/CMake/releases/download/v3.22.0/cmake-3.22.0-linux-x86_64.sh
+        sudo sh cmake-3.22.0-linux-x86_64.sh --prefix=/usr/local --skip-license
+
     - name: Prepare environment
       run: |
         make prepare
-    
+
     - name: Configure project
       run: |
         cmake -H. -Bbuild -DCMAKE_BUILD_TYPE=Debug -DENABLE_COVERAGE=ON
-    
+
     - name: Build and Test
       run: |
         cmake --build build --config Debug --target coverage -j4
         cd build
         ctest .
-    
+
     - name: Code Coverage Report
       uses: irongut/CodeCoverageSummary@v1.3.0
       with:
@@ -43,7 +49,7 @@ jobs:
         indicators: true
         output: both
         thresholds: '60 80'
-    
+
     - name: Add Coverage PR Comment
       uses: marocchino/sticky-pull-request-comment@v2
       if: github.event_name == 'pull_request'
