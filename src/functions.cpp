@@ -9,9 +9,9 @@ namespace network_utils {
 
 std::vector<std::tuple<int, int, int>> buildEdges(const std::vector<std::vector<int>>& matrix) {
     std::vector<std::tuple<int, int, int>> edges;
-    int nodes = matrix.size();
-    for (int i = 0; i < nodes; ++i) {
-        for (int j = i + 1; j < nodes; ++j) {
+    size_t nodes = matrix.size(); // Cambiado a size_t
+    for (size_t i = 0; i < nodes; ++i) { // Cambiado a size_t
+        for (size_t j = i + 1; j < nodes; ++j) { // Cambiado a size_t
             if (matrix[i][j] > 0) {
                 edges.emplace_back(i, j, matrix[i][j]);
             }
@@ -25,11 +25,11 @@ std::vector<std::pair<int, int>> findMinimalSpanningTree(const std::vector<std::
     std::vector<std::pair<int, int>> mst;
     for (int i = 0; i < nodes; ++i) parent[i] = i;
 
-    auto findRoot = [&](int node) {
+    std::function<int(int)> findRoot = [&](int node) {
         return node == parent[node] ? node : parent[node] = findRoot(parent[node]);
     };
 
-    auto unionSets = [&](int u, int v) {
+    auto unionSets = [&](int u, int v) -> bool {
         int rootU = findRoot(u), rootV = findRoot(v);
         if (rootU != rootV) {
             if (rank[rootU] > rank[rootV]) parent[rootV] = rootU;
@@ -52,9 +52,9 @@ std::vector<std::pair<int, int>> findMinimalSpanningTree(const std::vector<std::
 }
 
 std::pair<int, std::string> shortestRoute(const std::vector<std::vector<int>>& matrix) {
-    int n = matrix.size();
+    size_t n = matrix.size();
     std::vector<int> vertices;
-    for (int i = 1; i < n; ++i) {
+    for (size_t i = 1; i < n; ++i) {
         vertices.push_back(i);
     }
 
@@ -66,7 +66,7 @@ std::pair<int, std::string> shortestRoute(const std::vector<std::vector<int>>& m
         int k = 0;
         std::string currentRoute = "A";
 
-        for (int i = 0; i < vertices.size(); ++i) {
+        for (size_t i = 0; i < vertices.size(); ++i) {
             currentPathCost += matrix[k][vertices[i]];
             currentRoute += " " + std::string(1, 'A' + vertices[i]);
             k = vertices[i];
@@ -84,12 +84,12 @@ std::pair<int, std::string> shortestRoute(const std::vector<std::vector<int>>& m
 }
 
 int calculateMaxFlow(const std::vector<std::vector<int>>& capacity, int source, int sink) {
-    int n = capacity.size();
+    size_t n = capacity.size();
     std::vector<std::vector<int>> residualCapacity = capacity;
     std::vector<int> parent(n);
     int maxFlow = 0;
 
-    auto bfs = [&]() -> bool {
+    auto bfs = [&]() -> int {
         std::fill(parent.begin(), parent.end(), -1);
         parent[source] = source;
         std::queue<std::pair<int, int>> q;
@@ -100,7 +100,7 @@ int calculateMaxFlow(const std::vector<std::vector<int>>& capacity, int source, 
             int flow = q.front().second;
             q.pop();
 
-            for (int v = 0; v < n; ++v) {
+            for (size_t v = 0; v < n; ++v) {
                 if (parent[v] == -1 && residualCapacity[u][v] > 0) {
                     parent[v] = u;
                     int newFlow = std::min(flow, residualCapacity[u][v]);
@@ -115,7 +115,7 @@ int calculateMaxFlow(const std::vector<std::vector<int>>& capacity, int source, 
     };
 
     int newFlow;
-    while (newFlow = bfs()) {
+    while ((newFlow = bfs())) {
         maxFlow += newFlow;
         int u = sink;
         while (u != source) {
@@ -132,6 +132,10 @@ std::pair<int, int> findNearestCentral(int x, int y, const std::vector<std::pair
     auto distance = [](int x1, int y1, int x2, int y2) {
         return std::sqrt(std::pow(x2 - x1, 2) + std::pow(y2 - y1, 2));
     };
+
+    if (centrals.empty()) {
+        throw std::invalid_argument("No hay centrales disponibles.");
+    }
 
     std::pair<int, int> nearestCentral = centrals.front();
     double minDistance = distance(x, y, nearestCentral.first, nearestCentral.second);
