@@ -1,3 +1,15 @@
+/**
+ * @file main.cpp
+ * @brief Programa que resuelve problemas de red utilizando algoritmos como Kruskal, TSP, y Ford-Fulkerson.
+ *
+ * @details Este programa procesa datos de colonias, distancias, capacidades y coordenadas
+ * para construir árboles de expansión mínima, rutas más eficientes, flujos máximos, 
+ * y encontrar la central más cercana.
+ *
+ * @author [Tu Nombre]
+ * @date [Fecha de actualización]
+ */
+
 #include <iostream>
 #include <vector>
 #include <stdexcept>
