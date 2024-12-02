@@ -128,14 +128,14 @@ else()
         GIT_SHALLOW TRUE)
     FetchContent_MakeAvailable(cxxopts)
 
-    if(ENABLE_TESTING)
+        if(ENABLE_TESTING)
         FetchContent_Declare(
             Catch2
             GIT_REPOSITORY https://github.com/catchorg/Catch2
             GIT_TAG v3.5.3
             GIT_SHALLOW TRUE)
         FetchContent_MakeAvailable(Catch2)
-        list(APPEND CMAKE_MODULE_PATH ${catch2_SOURCE_DIR}/extras)
+        list(APPEND CMAKE_MODULE_PATH ${Catch2_SOURCE_DIR}/extras)
     endif()
 endif()
 
@@ -151,14 +151,15 @@ if(ENABLE_TESTING)
 endif()
 
 # INSTALL TARGETS
-
 install(
     TARGETS ${EXECUTABLE_NAME}
     ARCHIVE DESTINATION lib
     LIBRARY DESTINATION lib
-    RUNTIME DESTINATION bin)
+    RUNTIME DESTINATION bin
+)
 
 install(
-    TARGETS "Libfunctions" 
+    TARGETS Libfunctions 
     ARCHIVE DESTINATION lib
-    LIBRARY DESTINATION lib)
+    LIBRARY DESTINATION lib
+)
