@@ -28,7 +28,7 @@ jobs:
 
     - name: Configure
       run: |
-        cmake -H. -Bbuild -DCMAKE_BUILD_TYPE=Debug -DENABLE_COVERAGE=On
+        cmake -H. -Bbuild -DCMAKE_BUILD_TYPE=Debug -DENABLE_COVERAGE=Off
 
     - name: Building and Testing
       run: |
