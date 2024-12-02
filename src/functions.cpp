@@ -9,9 +9,9 @@ namespace network_utils {
 
 std::vector<std::tuple<int, int, int>> buildEdges(const std::vector<std::vector<int>>& matrix) {
     std::vector<std::tuple<int, int, int>> edges;
-    size_t nodes = matrix.size(); // Cambiado a size_t
-    for (size_t i = 0; i < nodes; ++i) { // Cambiado a size_t
-        for (size_t j = i + 1; j < nodes; ++j) { // Cambiado a size_t
+    size_t nodes = matrix.size();
+    for (size_t i = 0; i < nodes; ++i) {
+        for (size_t j = i + 1; j < nodes; ++j) {
             if (matrix[i][j] > 0) {
                 edges.emplace_back(i, j, matrix[i][j]);
             }
@@ -20,12 +20,12 @@ std::vector<std::tuple<int, int, int>> buildEdges(const std::vector<std::vector<
     return edges;
 }
 
-std::vector<std::pair<int, int>> findMinimalSpanningTree(const std::vector<std::tuple<int, int, int>>& edges, int nodes) {
+std::vector<std::pair<int, int>> findMinimalSpanningTree(const std::vector<std::tuple<int, int, int>>& edges, size_t nodes) {
     std::vector<int> parent(nodes), rank(nodes, 0);
     std::vector<std::pair<int, int>> mst;
-    for (int i = 0; i < nodes; ++i) parent[i] = i;
+    for (size_t i = 0; i < nodes; ++i) parent[i] = i;
 
-    std::function<int(int)> findRoot = [&](int node) {
+    std::function<int(int)> findRoot = [&](int node) -> int {
         return node == parent[node] ? node : parent[node] = findRoot(parent[node]);
     };
 
@@ -53,7 +53,7 @@ std::vector<std::pair<int, int>> findMinimalSpanningTree(const std::vector<std::
 
 std::pair<int, std::string> shortestRoute(const std::vector<std::vector<int>>& matrix) {
     size_t n = matrix.size();
-    std::vector<int> vertices;
+    std::vector<size_t> vertices;
     for (size_t i = 1; i < n; ++i) {
         vertices.push_back(i);
     }
@@ -63,12 +63,12 @@ std::pair<int, std::string> shortestRoute(const std::vector<std::vector<int>>& m
 
     do {
         int currentPathCost = 0;
-        int k = 0;
+        size_t k = 0;
         std::string currentRoute = "A";
 
         for (size_t i = 0; i < vertices.size(); ++i) {
             currentPathCost += matrix[k][vertices[i]];
-            currentRoute += " " + std::string(1, 'A' + vertices[i]);
+            currentRoute += " " + std::string(1, 'A' + static_cast<char>(vertices[i]));
             k = vertices[i];
         }
         currentPathCost += matrix[k][0];
@@ -104,7 +104,7 @@ int calculateMaxFlow(const std::vector<std::vector<int>>& capacity, int source, 
                 if (parent[v] == -1 && residualCapacity[u][v] > 0) {
                     parent[v] = u;
                     int newFlow = std::min(flow, residualCapacity[u][v]);
-                    if (v == sink) {
+                    if (static_cast<size_t>(v) == static_cast<size_t>(sink)) {
                         return newFlow;
                     }
                     q.push({v, newFlow});
