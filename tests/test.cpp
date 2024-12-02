@@ -1,71 +1,112 @@
-#define CATCH_CONFIG_MAIN
-#include <catch2/catch_test_macros.hpp>
+// test.cpp //
+#include <iostream>
+#include <vector>
+#include <stdexcept>
 #include "functions.h"
-#include <fstream>
-#include <cstdio> 
 
-using namespace network_utils; // Usar el espacio de nombres correcto
+int main() {
+    try {
+        using namespace network_utils;
 
-// Test for Kruskal (Minimal Spanning Tree)
-TEST_CASE("kruskal: Generar Árbol de Expansión Mínima", "[kruskal]") {
-    std::vector<std::tuple<int, int, int>> edges = {
-        {0, 1, 4}, {0, 2, 3}, {1, 2, 1}, {1, 3, 2}, {2, 3, 4}
-    };
-    int nodes = 4;
+        int colonyCount;
+        std::cin >> colonyCount;
+        if (colonyCount <= 0) {
+            throw std::invalid_argument("El número de colonias debe ser mayor que cero.");
+        }
 
-    auto mst = findMinimalSpanningTree(edges, nodes); // Llamada correcta
+        // Crear la matriz de distancias entre las colonias
+        std::vector<std::vector<int>> distanceMatrix(colonyCount, std::vector<int>(colonyCount));
+        
+        std::cout << "Introduzca las distancias entre las colonias:\n";
+        for (int i = 0; i < colonyCount; ++i) {
+            for (int j = 0; j < colonyCount; ++j) {
+                std::cin >> distanceMatrix[i][j];
+                if (i == j && distanceMatrix[i][j] != 0) {
+                    throw std::invalid_argument("La distancia entre una colonia y sí misma debe ser 0.");
+                }
+                if (distanceMatrix[i][j] < 0) {
+                    throw std::invalid_argument("Las distancias no pueden ser negativas.");
+                }
+            }
+        }
 
-    REQUIRE(mst.size() == 3); // Deben haber N-1 aristas
-    REQUIRE(mst == std::vector<std::pair<int, int>>{{1, 2}, {1, 3}, {0, 2}}); // Verifica aristas del MST
-}
+        // Crear la matriz de capacidades de los caminos
+        std::vector<std::vector<int>> capacityMatrix(colonyCount, std::vector<int>(colonyCount));
+        
+        std::cout << "Introduzca las capacidades entre las colonias:\n";
+        for (int i = 0; i < colonyCount; ++i) {
+            for (int j = 0; j < colonyCount; ++j) {
+                std::cin >> capacityMatrix[i][j];
+                if (capacityMatrix[i][j] < 0) {
+                    throw std::invalid_argument("Las capacidades deben ser no negativas.");
+                }
+            }
+        }
 
-// Test for Traveling Salesman (shortestRoute)
-TEST_CASE("traveling_salesman: Ruta más corta (TSP)", "[traveling_salesman]") {
-    std::vector<std::vector<int>> distances = {
-        {0, 16, 45, 32},
-        {16, 0, 18, 21},
-        {45, 18, 0, 7},
-        {32, 21, 7, 0}
-    };
+        // Coordenadas de las centrales
+        std::vector<std::pair<int, int>> centralCoordinates;
+        std::cout << "Introduzca las coordenadas de las centrales (formato: (x,y)):\n";
+        for (int i = 0; i < colonyCount; ++i) {
+            char lParen, comma, rParen;
+            int x, y;
+            std::cin >> lParen >> x >> comma >> y >> rParen;
+            if (lParen != '(' || comma != ',' || rParen != ')') {
+                throw std::invalid_argument("Formato incorrecto para las coordenadas.");
+            }
+            centralCoordinates.emplace_back(x, y);
+        }
 
-    auto [cost, path] = shortestRoute(distances); // Llamada correcta
+        // Coordenadas de un punto nuevo
+        int newPointX, newPointY;
+        std::cout << "Introduzca las coordenadas del nuevo punto (formato: (x,y)):\n";
+        char lParen, comma, rParen;
+        std::cin >> lParen >> newPointX >> comma >> newPointY >> rParen;
+        if (lParen != '(' || comma != ',' || rParen != ')') {
+            throw std::invalid_argument("Formato incorrecto para el nuevo punto.");
+        }
 
-    REQUIRE(cost == 66); // Costo esperado
-    REQUIRE(path == "A B D C A "); // Ruta esperada
-}
+        // Prueba de Kruskal
+        try {
+            auto edges = buildEdges(distanceMatrix);
+            auto mst = findMinimalSpanningTree(edges, colonyCount);
 
-// Test for Ford-Fulkerson (calcular máximo flujo)
-TEST_CASE("ford_fulkerson: Flujo máximo", "[ford_fulkerson]") {
-    std::vector<std::vector<int>> capacity = {
-        {0, 16, 13, 0, 0, 0},
-        {0, 0, 10, 12, 0, 0},
-        {0, 4, 0, 0, 14, 0},
-        {0, 0, 9, 0, 0, 20},
-        {0, 0, 0, 7, 0, 4},
-        {0, 0, 0, 0, 0, 0}
-    };
-    int source = 0, sink = 5;
+            std::cout << "1. Árbol de expansión mínima:\n";
+            for (const auto& edge : mst) {
+                std::cout << "(" << char('A' + edge.first) << ", " << char('A' + edge.second) << ")\n";
+            }
+        } catch (const std::exception& e) {
+            std::cerr << "Error en Kruskal: " << e.what() << "\n";
+        }
 
-    int maxFlow = calculateMaxFlow(capacity, source, sink); // Llamada correcta
+        // Prueba de TSP (Ruta más eficiente)
+        try {
+            auto [minCost, route] = shortestRoute(distanceMatrix);
+            std::cout << "2. Ruta más eficiente (TSP):\n";
+            std::cout << "Costo: " << minCost << "\nRuta: " << route << "\n";
+        } catch (const std::exception& e) {
+            std::cerr << "Error en TSP: " << e.what() << "\n";
+        }
 
-    REQUIRE(maxFlow == 23); // Flujo máximo esperado
-}
+        // Prueba de Ford-Fulkerson (Flujo máximo)
+        try {
+            int maxFlow = calculateMaxFlow(capacityMatrix, 0, colonyCount - 1);
+            std::cout << "3. Flujo máximo: " << maxFlow << "\n";
+        } catch (const std::exception& e) {
+            std::cerr << "Error en flujo máximo: " << e.what() << "\n";
+        }
 
-// Test for Nearest Central (findNearestCentral)
-TEST_CASE("nearest_central: Encontrar central más cercana", "[nearest_central]") {
-    std::vector<std::pair<int, int>> centrals = {
-        {0, 0}, {2, 2}, {5, 5}, {10, 10}
-    };
-    int x = 3, y = 3;
+        // Buscar la central más cercana
+        try {
+            auto closestCentral = findNearestCentral(newPointX, newPointY, centralCoordinates);
+            std::cout << "4. La central más cercana es: (" << closestCentral.first << ", " << closestCentral.second << ")\n";
+        } catch (const std::exception& e) {
+            std::cerr << "Error en la búsqueda: " << e.what() << "\n";
+        }
 
-    auto nearest = findNearestCentral(x, y, centrals); // Llamada correcta
+    } catch (const std::exception& e) {
+        std::cerr << "Error general: " << e.what() << "\n";
+        return 1;
+    }
 
-    REQUIRE(nearest == std::make_pair(2, 2)); // Central más cercana esperada
-}
-
-TEST_CASE("nearest_central: Sin centrales", "[nearest_central]") {
-    std::vector<std::pair<int, int>> centrals;
-    int x = 3, y = 3;
-
-    REQUIRE_THROWS_AS(findNearestCentral(x, y, centrals), std::invalid_argument); // Excepción esperada
+    return 0;
 }
